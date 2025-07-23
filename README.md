@@ -87,6 +87,11 @@ Use the **ESP32 Sketch Data Upload** tool:
 
 ---
 
+## ⚙️ 
+Hardware wiring instructions coming soon...
+
+---
+
 ## 📃 License
 
 MIT License
