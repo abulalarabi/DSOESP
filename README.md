@@ -30,8 +30,8 @@ Before uploading, install these libraries via **Arduino Library Manager** or **P
 | Library | Author |
 |--------|--------|
 | [WiFiManager](https://github.com/tzapu/WiFiManager) | tzapu |
-| [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) | me-no-dev |
-| [AsyncTCP](https://github.com/me-no-dev/AsyncTCP) | me-no-dev |
+| [ESPAsyncWebServer](https://github.com/ESP32Async/ESPAsyncWebServer) | me-no-dev |
+| [AsyncTCP](https://github.com/ESP32Async/AsyncTCP) | me-no-dev |
 | [LittleFS](https://github.com/lorol/arduino-esp32fs-plugin) | lorol |
 | [ArduinoOTA](https://github.com/espressif/arduino-esp32) | Espressif Systems |
 
