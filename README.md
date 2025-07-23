@@ -1,4 +1,4 @@
-# 📟 DSOESP
+# 📟 DSOESP-– Bringing Modern Connectivity to Low-Cost Oscilloscopes
 
 The **DSO150 oscilloscope** and similar low-cost digital scopes are widely used for basic signal visualization due to their affordability and portability. However, they have **significant limitations** when it comes to data storage, analysis, and real-time sharing—such as lacking built-in memory export, plotting on external devices, or wireless connectivity.
 
