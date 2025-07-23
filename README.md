@@ -10,7 +10,7 @@ This project addresses those limitations by using an **ESP32-C3** microcontrolle
 ---
 ## 📸 Screenshots
 
-![Web UI](screenshots/web-ui.png)
+![Web UI](dsoespbanner.png)
 
 ---
 

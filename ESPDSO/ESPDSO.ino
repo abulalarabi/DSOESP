@@ -13,10 +13,11 @@ int nextFileIndex = 0;
 
 
 void setup() {
+  Serial.setRxBufferSize(4096); // 4KB buffer instead of default 256 bytes
   Serial.begin(115200);
-  Serial.setTimeout(0);
+  Serial.setTimeout(50); // Shorter timeout for faster processing
+  
   WiFi.mode(WIFI_STA);
-
   LittleFS.begin(true);
   findLastFileIndex();
 
@@ -26,36 +27,52 @@ void setup() {
   }
 
   ArduinoOTA.begin();
-
   initWebServer();
 }
 
 void loop() {
-  ArduinoOTA.handle();
-
-  if (Serial.available() > 0) {
-    // Create a new file
-    String filename = "/data_" + String(nextFileIndex++) + ".csv";
-    File file = LittleFS.open(filename, FILE_WRITE);
-    if (!file) return;
-
-    // Buffer to store each line
-    char lineBuffer[LINE_BUFFER_SIZE];
-    size_t index = 0;
-
-    // Read and write line by line
-    while (Serial.available()) {
-      char c = Serial.read();
-      if (c == '\n' || index >= LINE_BUFFER_SIZE - 1) {
-        lineBuffer[index] = '\0';
-        file.println(lineBuffer);
-        index = 0;
-      } else {
-        lineBuffer[index++] = c;
+  // Handle OTA but give priority to serial data
+  if (!Serial.available()) {
+    ArduinoOTA.handle();
+  }
+  
+  static String currentData = "";
+  static unsigned long lastByteTime = 0;
+  static bool hasData = false;
+  const unsigned long TIMEOUT_MS = 800; // Shorter timeout
+  
+  // Priority: Read all available serial data immediately
+  while (Serial.available()) {
+    currentData += (char)Serial.read();
+    lastByteTime = millis();
+    hasData = true;
+    
+    // Prevent memory overflow
+    if (currentData.length() > 30000) {
+      // Force save if data gets too large
+      String filename = "/data_" + String(nextFileIndex++) + ".csv";
+      File file = LittleFS.open(filename, FILE_WRITE);
+      if (file) {
+        file.print(currentData);
+        file.close();
       }
-      delay(1);  // small yield to keep system responsive
+      currentData = "";
+      hasData = false;
+      return; // Return immediately to continue reading
     }
-
-    file.close();
+  }
+  
+  // Save when data stream ends
+  if (hasData && (millis() - lastByteTime > TIMEOUT_MS)) {
+    if (currentData.length() > 100) { // Only save substantial data
+      String filename = "/data_" + String(nextFileIndex++) + ".csv";
+      File file = LittleFS.open(filename, FILE_WRITE);
+      if (file) {
+        file.print(currentData);
+        file.close();
+      }
+    }
+    currentData = "";
+    hasData = false;
   }
 }
