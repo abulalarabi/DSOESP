@@ -1,19 +1,34 @@
 void findLastFileIndex() {
+  nextFileIndex = 0;
+
+  // — assume FS is already mounted in setup()
   File root = LittleFS.open("/");
+  if (!root || !root.isDirectory()) {
+    return;
+  }
+
   File file = root.openNextFile();
   while (file) {
-    String name = String(file.name());
-    if (name.startsWith("/data_") && name.endsWith(".csv")) {
-      int underscore = name.indexOf('_');
-      int dot = name.lastIndexOf('.');
-      if (underscore >= 0 && dot > underscore) {
-        String numStr = name.substring(underscore + 1, dot);
-        int num = numStr.toInt();
-        if (num >= nextFileIndex) {
-          nextFileIndex = num + 1;
-        }
+    // strip leading slash if present
+    String name = file.name();
+    if (name.startsWith("/")) {
+      name = name.substring(1);
+    }
+
+    // match data_<digits>.csv
+    if (name.startsWith("data_") && name.endsWith(".csv")) {
+      int u = name.indexOf('_');
+      int d = name.lastIndexOf('.');
+      String numStr = name.substring(u + 1, d);
+      int n = numStr.toInt();
+      if (n >= nextFileIndex) {
+        nextFileIndex = n + 1;
       }
     }
+
+    file.close();
     file = root.openNextFile();
   }
+
+  root.close();
 }

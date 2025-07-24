@@ -160,9 +160,10 @@ void initWebServer() {
               + displayName + "\")'>Delete</a>"
                               "<a class='plot' href='/plot?name="
               + displayName + "'>Plot</a></span></li>";
-
+      file.close();
       file = root.openNextFile();
     }
+    root.close();
 
     html += R"rawliteral(
             </ul>
@@ -231,20 +232,58 @@ void initWebServer() {
     String html = "<!DOCTYPE html><html><head><title>Plot</title>"
                   "<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>"
                   "<style>body{font-family:sans-serif;padding:20px;background:#f0f0f0;}"
-                  ".plot-card{background:#fff;padding:20px;border-radius:10px;max-width:900px;margin:auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);}"
-                  "#plot{height:500px;}</style></head><body>"
+                  ".plot-card,.meta-card{background:#fff;padding:20px;border-radius:10px;max-width:900px;margin:auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);margin-top:10px;}"
+                  "#plot{height:500px;}"
+                  ".grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-size:12px;}"
+                  ".grid div{background:#f9f9f9;padding:10px;border-radius:5px;}"
+                  "</style></head><body>"
                   "<div class='plot-card'><a href='/'>&larr; Back</a><h2>Plot of "
-                  + fileName + "</h2><div id='plot'></div></div><script>";
+                  + fileName + "</h2><div id='plot'></div></div>";
 
+    // Add metadata card
+    html += "<div class='meta-card'><h3>File Metadata</h3><div class='grid'>";
+
+    file.seek(0);  // rewind file to read from the beginning again
+
+    int metaCount = 0;
+    String sampleIntervalUnit = "ms";  // default
+    while (file.available() && metaCount < 19) {
+      String line = file.readStringUntil('\n');
+      line.trim();
+
+      if (line.length() > 0 && !(line.charAt(0) >= '0' && line.charAt(0) <= '9')) {
+        int sepIndex = line.indexOf(',');
+        if (sepIndex != -1) {
+          String key = line.substring(0, sepIndex);
+          String val = line.substring(sepIndex + 1);
+          html += "<div><strong>" + key + ":</strong> " + val + "</div>";
+          if (key == "SampleInterval") {
+            val.trim();
+            if (val.endsWith("us")) {
+              sampleIntervalUnit = "us";
+            } else {
+              sampleIntervalUnit = "ms";
+            }
+          }
+          metaCount++;
+        }
+      }
+    }
+
+    html += "</div></div><script>";
+
+    // Set sampleUnit variable in JS
+    html += "let sampleUnit = '" + sampleIntervalUnit + "';";
+
+    // Embed waveform data for plotting
     html += "let csvData = `";
+    file.seek(0);  // rewind again for waveform extraction
 
-    // Read file line-by-line and embed waveform data only
     while (file.available()) {
       String line = file.readStringUntil('\n');
       line.trim();
 
       if (line.length() > 0 && line.charAt(0) >= '0' && line.charAt(0) <= '9') {
-        // likely a waveform row like 00001,0000000020,-0.04
         html += line + "\\n";
       }
     }
@@ -256,18 +295,21 @@ void initWebServer() {
             "csvData.forEach(l=>{"
             "let p=l.split(',');"
             "if(p.length===3){"
-            "  t.push(parseFloat(p[1])/1000);"
+            "  let timeVal = parseFloat(p[1]);"
+            "  t.push(timeVal);"
             "  v.push(parseFloat(p[2]));"
             "}});"
             "if(t.length===0||v.length===0){"
             "document.getElementById('plot').innerHTML='<p style=\"color:red;\">⚠️ No valid data found.</p>';"
             "}else{"
             "Plotly.newPlot('plot',[{x:t,y:v,type:'scatter',mode:'lines',line:{color:'#007bff'}}],"
-            "{margin:{t:30},xaxis:{title:'Time (ms)'},yaxis:{title:'Voltage (V)'}});}"
+            "{margin:{t:30},xaxis:{title:'Time (' + sampleUnit + ')'},yaxis:{title:'Voltage (V)'}});}"
             "</script></body></html>";
 
     request->send(200, "text/html", html);
   });
+
+
 
 
 
