@@ -22,6 +22,30 @@ This project addresses those limitations by using an **ESP32-C3** microcontrolle
 - OTA (Over-the-Air) firmware update support
 
 ---
+## 📒 Changelog
+
+### v1.3 – *July 2025*
+- ➕ Added metadata display panel below plot in grid layout
+- 🧠 Auto-detects `SampleInterval` unit (`ms` or `us`) and updates x-axis label accordingly
+- 💅 Improved UI layout and spacing for better readability on desktop and mobile
+
+### v1.2
+- 📈 Integrated Plotly.js for waveform visualization
+- 🗂️ Card-style interface added for clean plot layout
+- 🌐 Query string (`?name=...`) support for selecting files to plot
+
+### v1.1
+- 📤 Added OTA (Over-the-Air) firmware update capability
+- 🧹 File manager supports download and delete actions
+- 📊 SPIFFS usage now displayed in UI
+
+### v1.0
+- 🚀 Initial release
+- 📡 Serial data logging from DSO150 to ESP32-C3 via UART
+- 📁 CSV file creation and manual access over Wi-Fi
+- 🌐 WiFiManager setup for headless configuration
+
+---
 
 ## 📦 Required Libraries
 
