@@ -1,16 +1,11 @@
 # 📟 DSOESP-– Bringing Modern Connectivity to Low-Cost Oscilloscopes
-
+![Web UI](dsoespbanner.png)
 The **DSO150 oscilloscope** and similar low-cost digital scopes are widely used for basic signal visualization due to their affordability and portability. However, they have **significant limitations** when it comes to data storage, analysis, and real-time sharing—such as lacking built-in memory export, plotting on external devices, or wireless connectivity.
 
 This project addresses those limitations by using an **ESP32-C3** microcontroller to log serial output from the DSO as CSV files and host a **modern web interface** over Wi-Fi. Users can:
 - Download, delete, or plot saved CSV files
 - View SPIFFS storage usage
 - Perform OTA firmware updates over the network
-
----
-## 📸 Screenshots
-
-![Web UI](dsoespbanner.png)
 
 ---
 
